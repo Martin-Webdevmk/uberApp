@@ -92,7 +92,7 @@ class _SignUpScreenState extends State<SignUpScreen>
                         ),
                       ),
 
-                      const SizedBox(height: 22,),
+                      const SizedBox(height: 32,),
 
                       ElevatedButton(
                         onPressed:()
@@ -109,12 +109,27 @@ class _SignUpScreenState extends State<SignUpScreen>
                         ),
                       ),
 
-//This is github test
+
                     ],
                   ),
               ),
+              const SizedBox(height: 22,),
 
+              //textbutton
+              TextButton(
+                onPressed: ()
+                {
+
+                },
+                  child: Text(
+                    "Already have an Account? Login Here",
+                        style: TextStyle(
+                      color: Colors.grey
+                  ),
+                  ),
+                ),
             ],
+
           ),
         ),
       ),
