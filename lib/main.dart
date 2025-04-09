@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:users_app/authentication/login_screen.dart';
 import 'package:users_app/authentication/signup_screen.dart';
 
 void main() {
@@ -19,7 +20,7 @@ class MyApp extends StatelessWidget {
         scaffoldBackgroundColor: Colors.black
 
       ),
-      home: SignUpScreen(),
+      home: LoginScreen(),
     );
   }
 }
