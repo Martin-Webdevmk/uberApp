@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:users_app/authentication/login_screen.dart';
 
 
 class SignUpScreen extends StatefulWidget {
@@ -119,7 +120,7 @@ class _SignUpScreenState extends State<SignUpScreen>
               TextButton(
                 onPressed: ()
                 {
-
+                    Navigator.push(context, MaterialPageRoute(builder: (c)=> LoginScreen()));
                 },
                   child: Text(
                     "Already have an Account? Login Here",
