@@ -22,9 +22,38 @@ class _SignUpScreenState extends State<SignUpScreen>
   checkIfNetworkIsAvailable()
   {
     cMethods.checkConnectivity(context);
+    signUpFormValidation();
+
   }
 
-  @override
+  signUpFormValidation()
+
+  {
+    if (userNameTextEditingController.text.trim().length <3)
+    {
+      cMethods.displaySnackBar("your name must be at least 4 or more characters", context);
+    }
+    else if(userPhoneTextEditingController.text.trim().length <10)
+    {
+      cMethods.displaySnackBar("your phone must be Correct", context);
+    }
+
+    else if(!emailTextEditingController.text.contains("@"))
+    {
+      cMethods.displaySnackBar("Please write valid email.", context);
+    }
+    else if(passwordTextEditingController.text.trim().length < 5)
+    {
+      cMethods.displaySnackBar("Your password must be atleast 6 or more characters.", context);
+    }
+    else {
+      //register user
+    }
+  }
+
+
+
+    @override
   Widget build(BuildContext context)
   {
     return Scaffold(
