@@ -1,6 +1,12 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:users_app/authentication/login_screen.dart';
 import 'package:users_app/methods/common_methods.dart';
+import 'package:users_app/pages/home_page.dart';
+import 'package:users_app/widgets/loading_dialog.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
+
 
 
 class SignUpScreen extends StatefulWidget {
@@ -47,13 +53,55 @@ class _SignUpScreenState extends State<SignUpScreen>
       cMethods.displaySnackBar("Your password must be atleast 6 or more characters.", context);
     }
     else {
-      //register user
+      registerNewUser();
     }
   }
 
 
+  registerNewUser() async
+  {
+    // prikazuva dijalog за вчитување додека се врши регистрацијата
+    showDialog(
+      context: context,
+      barrierDismissible: false,// Не дозволува затворање на дијалогот додека не заврши регистрацијата
+      builder: (BuildContext context) => LoadingDialog(messageText: "Registering your account..."),
+    );
 
-    @override
+    // Создавање нов корисник со емаил и лозинка користејќи Firebase Authentication
+    //final User? userFirebase = ...: Го чува новиот создаден Firebase корисник во променливата userFirebase
+    final User? userFirebase = (
+        await FirebaseAuth.instance.createUserWithEmailAndPassword(
+          email: emailTextEditingController.text.trim(), //Го зема емаил податокот внесени од корисникот
+          password: passwordTextEditingController.text.trim(),
+        ).catchError((errorMsg)
+        {
+
+          Navigator.pop(context);// Го затвора LoadingDialog доколку има некој ерор.
+          cMethods.displaySnackBar(errorMsg.toString(), context);
+        })
+    ).user;
+
+    //If succesfully user is registered close the dialog.
+    if(!context.mounted) return;
+    Navigator.pop(context);
+
+
+    DatabaseReference usersRef = FirebaseDatabase.instance.ref().child("users").child(userFirebase!.uid);
+    Map userDataMap = {
+      "name": userNameTextEditingController.text.trim(),
+      "email": emailTextEditingController.text.trim(),
+      "phone": userPhoneTextEditingController.text.trim(),
+      "id": userFirebase.uid,
+      "blockedStatus": "no",
+    };
+
+    usersRef.set(userDataMap); //It will save the data to the database.
+
+    Navigator.push(context, MaterialPageRoute(builder: (c)=> HomePage())); //After successfull user signup, redirects to the Home Page;
+  }
+
+
+  @override
   Widget build(BuildContext context)
   {
     return Scaffold(
