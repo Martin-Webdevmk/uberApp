@@ -27,7 +27,7 @@ class _HomePageState extends State<HomePage> {
           TileLayer(
             urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
             subdomains: const ['a', 'b', 'c'],
-            userAgentPackageName: 'com.martinaleksoski.usersapp',
+            userAgentPackageName: 'com.marginalisation.usersapp',
           ),
           MarkerLayer(
             markers: [
