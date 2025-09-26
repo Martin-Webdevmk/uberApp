@@ -8,30 +8,34 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 
 
-
+// ----------- SignUpScreen WIDGET -----------
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
 
   @override
   State<SignUpScreen> createState() => _SignUpScreenState();
 }
-
+// ----------- STATE CLASS -----------
 class _SignUpScreenState extends State<SignUpScreen>
 {
+  // Controllers for the text fields
   TextEditingController userNameTextEditingController = TextEditingController();
   TextEditingController userPhoneTextEditingController = TextEditingController();
   TextEditingController emailTextEditingController = TextEditingController();
   TextEditingController passwordTextEditingController = TextEditingController();
 
+  // Instance of your helper class
   CommonMethods cMethods = CommonMethods();
 
+  // Step 1: Check internet connection before signup
   checkIfNetworkIsAvailable()
   {
-    cMethods.checkConnectivity(context);
-    signUpFormValidation();
+    cMethods.checkConnectivity(context); // Internet check
+    signUpFormValidation(); // If ok, validate the form
 
   }
 
+  // Step 2: Validate the form
   signUpFormValidation()
 
   {
@@ -53,17 +57,17 @@ class _SignUpScreenState extends State<SignUpScreen>
       cMethods.displaySnackBar("Your password must be atleast 6 or more characters.", context);
     }
     else {
-      registerNewUser();
+      registerNewUser();  // If valid → proceed to register
     }
   }
 
-
+  // Step 3: Register new user in Firebase
   registerNewUser() async
   {
     // prikazuva dijalog за вчитување додека се врши регистрацијата
     showDialog(
       context: context,
-      barrierDismissible: false,// Не дозволува затворање на дијалогот додека не заврши регистрацијата
+      barrierDismissible: false, // Prevent closing dialog manually
       builder: (BuildContext context) => LoadingDialog(messageText: "Registering your account..."),
     );
 
@@ -73,46 +77,49 @@ class _SignUpScreenState extends State<SignUpScreen>
         await FirebaseAuth.instance.createUserWithEmailAndPassword(
           email: emailTextEditingController.text.trim(), //Го зема емаил податокот внесени од корисникот
           password: passwordTextEditingController.text.trim(),
-        ).catchError((errorMsg)
+        ).catchError((errorMsg) // If error occurs
         {
 
           Navigator.pop(context);// Го затвора LoadingDialog доколку има некој ерор.
           cMethods.displaySnackBar(errorMsg.toString(), context);
         })
-    ).user;
+    ).user; // If successful, get Firebase User object
 
     //If succesfully user is registered close the dialog.
     if(!context.mounted) return;
     Navigator.pop(context);
 
-
+    // Save extra user data in Firebase Database
     DatabaseReference usersRef = FirebaseDatabase.instance.ref().child("users").child(userFirebase!.uid);
+
     Map userDataMap = {
       "name": userNameTextEditingController.text.trim(),
       "email": emailTextEditingController.text.trim(),
       "phone": userPhoneTextEditingController.text.trim(),
       "id": userFirebase.uid,
-      "blockedStatus": "no",
+      "blockedStatus": "no", // By default user is active
     };
 
-    usersRef.set(userDataMap); //It will save the data to the database.
+    usersRef.set(userDataMap); //It will save the data to the database. || Save data under "users/{uid}"
 
-    Navigator.push(context, MaterialPageRoute(builder: (c)=> HomePage())); //After successfull user signup, redirects to the Home Page;
+    Navigator.push(context, MaterialPageRoute(builder: (c)=> HomePage()));  // After successful signup → navigate to HomePage
   }
 
 
+
+  // ----------- BUILD UI -----------
   @override
   Widget build(BuildContext context)
   {
     return Scaffold(
-      body: SingleChildScrollView(
+      body: SingleChildScrollView( // Scroll in case of small screen
         child: Padding(
           padding: const EdgeInsets.all(10),
           child: Column(
             children: [
 
             Image.asset(
-              "assets/images/logo.png"
+              "assets/images/logo.png"  // App logo
             ),
             
               Text(
@@ -123,12 +130,13 @@ class _SignUpScreenState extends State<SignUpScreen>
                    ),
                 ),
 
-              //Text Fields
+              // ---------- Text Fields ----------
               Padding(
                   padding: const EdgeInsets.all(22),
                   child: Column(
                     children:  [
 
+                      // User Name input
                       TextField(
                           controller: userNameTextEditingController,
                           keyboardType: TextInputType.text,
@@ -146,6 +154,7 @@ class _SignUpScreenState extends State<SignUpScreen>
 
                       const SizedBox(height: 22,),
 
+                      // Phone input
                       TextField(
                         controller: userPhoneTextEditingController,
                         keyboardType: TextInputType.emailAddress,
@@ -163,7 +172,7 @@ class _SignUpScreenState extends State<SignUpScreen>
 
                       const SizedBox(height: 22,),
 
-
+                      // Email input
                       TextField(
                         controller: emailTextEditingController,
                         keyboardType: TextInputType.emailAddress,
@@ -181,9 +190,10 @@ class _SignUpScreenState extends State<SignUpScreen>
 
                       const SizedBox(height: 22,),
 
+                      // Password input
                       TextField(
                         controller: passwordTextEditingController,
-                        obscureText: true,
+                        obscureText: true, // Hide password
                         keyboardType: TextInputType.text,
                         decoration: const InputDecoration(
                           labelText: "User Password",
@@ -199,10 +209,12 @@ class _SignUpScreenState extends State<SignUpScreen>
 
                       const SizedBox(height: 32,),
 
+                      // ---------- Sign Up Button ----------
+
                       ElevatedButton(
                         onPressed:()
                         {
-                          checkIfNetworkIsAvailable()
+                          checkIfNetworkIsAvailable() // First function called when button pressed
 ;                        },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.purple,
@@ -213,13 +225,11 @@ class _SignUpScreenState extends State<SignUpScreen>
                           "Sign Up"
                         ),
                       ),
-
-
                     ],
                   ),
               ),
 
-              //textbutton
+              // ---------- Redirect to Login ----------
               TextButton(
                 onPressed: ()
                 {

@@ -18,19 +18,23 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen>
 {
+  // Controllers for text fields (email & password inputs)
   TextEditingController emailTextEditingController = TextEditingController();
   TextEditingController passwordTextEditingController = TextEditingController();
+
+  // Instance of CommonMethods (for snackbars, connectivity checks, etc.)
   CommonMethods cMethods = CommonMethods();
 
+  // Step 1: Check if device has internet before logging in
   checkIfNetworkIsAvailable()
   {
-    cMethods.checkConnectivity(context);
-    signInFormValidation();
+    cMethods.checkConnectivity(context); // Calls method to check internet
+    signInFormValidation(); //After that, validate form
 
   }
 
+  // Step 2: Validate the form (email & password)
   signInFormValidation()
-
   {
 
     if(!emailTextEditingController.text.contains("@"))
@@ -42,7 +46,7 @@ class _LoginScreenState extends State<LoginScreen>
       cMethods.displaySnackBar("Your password must be atleast 6 or more characters.", context);
     }
     else {
-       signInUser();
+       signInUser(); // If everything is valid → attempt login
     }
   }
 
@@ -61,40 +65,45 @@ class _LoginScreenState extends State<LoginScreen>
         await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: emailTextEditingController.text.trim(), //Го зема емаил податокот внесени од корисникот
         password: passwordTextEditingController.text.trim(),
-    ).catchError((errorMsg)
+    ).catchError((errorMsg) //If error occurs during login
     {
-    Navigator.pop(context);// Го затвора LoadingDialog доколку има некој ерор.
-    cMethods.displaySnackBar(errorMsg.toString(), context);
+    Navigator.pop(context);// Го затвора LoadingDialog.
+    cMethods.displaySnackBar(errorMsg.toString(), context); // Show error in snack bar;
     })
-    ).user;
+    ).user; // If successful, get the Firebase User object
 
-    //If succesfully user is registered close the dialog.
+    // Close loading dialog once login attempt finished
     if(!context.mounted) return;
     Navigator.pop(context);
 
+    // If user successfully logged in (userFirebase != null)
     if(userFirebase != null)
     {
+      // Check if user exists in "users" node in Firebase Realtime DB
       DatabaseReference usersRef = FirebaseDatabase.instance.ref().child("users").child(userFirebase.uid);
       usersRef.once().then((snap)
       {
-        if(snap.snapshot.value != null)
+        if(snap.snapshot.value != null) //If user data exists in DB
           {
-            if ((snap.snapshot.value as Map)["blockedStatus"] == "no")
+          // Check if user is not blocked
+          if ((snap.snapshot.value as Map)["blockedStatus"] == "no")
             {
+              // Save user name globally
               userName = (snap.snapshot.value as Map)["name"];
+              // Navigate to HomePage
               Navigator.push(context, MaterialPageRoute(builder: (c)=> HomePage()));
             }
-            else
+            else //If user is blocked
             {
-              FirebaseAuth.instance.signOut();
+              FirebaseAuth.instance.signOut(); // Force logout
               cMethods.displaySnackBar("you are blocked.Contact admin: info@webdevmk.com ", context);
             }
           }
 
 
-        else
+        else //if user not found in database;
           {
-            FirebaseAuth.instance.signOut();
+            FirebaseAuth.instance.signOut(); // Force logout
             cMethods.displaySnackBar("your record do not exists as a User", context);
           }
 
@@ -103,34 +112,35 @@ class _LoginScreenState extends State<LoginScreen>
   }
 
 
+  // ----------- BUILD METHOD -----------
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SingleChildScrollView(
+      body: SingleChildScrollView( // Scroll in case of small screen
         child: Padding(
           padding: const EdgeInsets.all(10),
           child: Column(
             children: [
 
               Image.asset(
-                  "assets/images/logo.png"
+                  "assets/images/logo.png" // App logo
               ),
 
               Text(
-                "Login as a user",
+                "Login as a user", // Title
                 style: TextStyle(
                   fontSize: 26,
                   fontWeight: FontWeight.bold,
                 ),
               ),
 
-              //Text Fields
+              // ---------- Text Fields ----------
               Padding(
                 padding: const EdgeInsets.all(22),
                 child: Column(
                   children:  [
-
+                    // Email input
                     TextField(
                       controller: emailTextEditingController,
                       keyboardType: TextInputType.emailAddress,
@@ -147,10 +157,10 @@ class _LoginScreenState extends State<LoginScreen>
                     ),
 
                     const SizedBox(height: 22,),
-
+                    // Password input
                     TextField(
                       controller: passwordTextEditingController,
-                      obscureText: true,
+                      obscureText: true, // hide password
                       keyboardType: TextInputType.text,
                       decoration: const InputDecoration(
                         labelText: "User Password",
@@ -166,10 +176,12 @@ class _LoginScreenState extends State<LoginScreen>
 
                     const SizedBox(height: 32,),
 
+                    // ---------- Login Button ----------
+
                     ElevatedButton(
                       onPressed:()
                       {
-                        checkIfNetworkIsAvailable();
+                        checkIfNetworkIsAvailable(); // First function when login button clicked
                       },
                       style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.purple,
@@ -187,7 +199,7 @@ class _LoginScreenState extends State<LoginScreen>
               ),
               const SizedBox(height: 22,),
 
-              //textbutton
+              // ---------- Redirect to Sign Up ----------
               TextButton(
                 onPressed: ()
                 {
