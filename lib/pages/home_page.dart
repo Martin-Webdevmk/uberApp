@@ -1,9 +1,13 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:users_app/authentication/login_screen.dart';
 import 'package:users_app/global/global_var.dart';
+import 'package:users_app/methods/common_methods.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -16,6 +20,7 @@ class _HomePageState extends State<HomePage> {
   late final MapController _mapController;
   LatLng? _currentLatLng;
   GlobalKey<ScaffoldState> sKey = GlobalKey<ScaffoldState>();
+  CommonMethods cMethods = CommonMethods();
 
   @override
   void initState() {
@@ -40,7 +45,57 @@ class _HomePageState extends State<HomePage> {
 
     // Move map to user location
     _mapController.move(_currentLatLng!, 15);
+
+    await getUserInfoAndCheckBlockStatus();
+
   }
+
+
+  getUserInfoAndCheckBlockStatus() async {
+    // 🔹 Step 1: Create a reference to the user’s data in Firebase Realtime Database
+    DatabaseReference usersRef = FirebaseDatabase.instance.ref()
+        .child("users")
+        .child(FirebaseAuth.instance.currentUser!.uid);
+
+    // 🔹 Step 2: Read data once (not listening continuously)
+    await usersRef.once().then((snap)
+    {
+      //  CASE 1: If user data exists in the database
+      // Extract the snapshot data as a Map for easier access
+      if(snap.snapshot.value != null)
+          {
+        // CASE 1A: If user is not blocked
+        if ((snap.snapshot.value as Map)["blockedStatus"] == "no")
+        {
+          // Save user name globally so you can use it anywhere (like Drawer)
+          setState(() {
+            userName = (snap.snapshot.value as Map)["name"];
+          });
+        }
+
+        // ❌ CASE 1B: If user is blocked
+        else //If user is blocked
+            {
+          FirebaseAuth.instance.signOut(); // Force logout
+
+          Navigator.push(context, MaterialPageRoute(builder: (c)=> LoginScreen()));
+
+          cMethods.displaySnackBar("you are blocked.Contact admin: info@webdevmk.com ", context);
+        }
+      }
+
+
+      else //if user not found in database;
+          {
+        FirebaseAuth.instance.signOut(); // Force logout
+        Navigator.push(context, MaterialPageRoute(builder: (c)=> LoginScreen()));
+      }
+
+    });
+
+  }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -55,6 +110,13 @@ class _HomePageState extends State<HomePage> {
           backgroundColor: Colors.white10,
           child: ListView(
             children: [
+
+              const Divider(
+                height: 1,
+                color: Colors.white,
+                thickness: 1,
+              ),
+
                //header
               Container(
                 color: Colors.black,
@@ -65,11 +127,13 @@ class _HomePageState extends State<HomePage> {
                   ),
                   child: Row(
                     children: [
+
                       const Icon(
                         Icons.person,
                         size: 60,
                       ),
                       const SizedBox( width: 16,),
+
                       Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -84,13 +148,12 @@ class _HomePageState extends State<HomePage> {
                           const Text(
                             "Profile",
                             style: const TextStyle(
-                              color: Colors.white10,
+                              color: Colors.white38,
                             ),
                           ),
 
                         ],
                       ),
-
                     ],
                   ),
                 )
