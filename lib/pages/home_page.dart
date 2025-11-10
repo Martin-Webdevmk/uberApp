@@ -176,12 +176,18 @@ class _HomePageState extends State<HomePage> {
                 title: const Text("About", style: TextStyle(color: Colors.grey),),
               ),
 
-              ListTile(
-                leading: IconButton(
-                  onPressed: (){},
-                  icon: Icon(Icons.logout, color: Colors.grey,),
+              GestureDetector(
+                onTap: (){
+                  FirebaseAuth.instance.signOut(); // Force logout
+                  Navigator.push(context, MaterialPageRoute(builder: (c)=> LoginScreen()));
+                },
+                child: ListTile(
+                  leading: IconButton(
+                    onPressed: (){},
+                    icon: Icon(Icons.logout, color: Colors.grey,),
+                  ),
+                  title: const Text("Logout", style: TextStyle(color: Colors.grey),),
                 ),
-                title: const Text("Logout", style: TextStyle(color: Colors.grey),),
               ),
 
 
