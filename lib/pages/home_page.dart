@@ -21,6 +21,8 @@ class _HomePageState extends State<HomePage> {
   LatLng? _currentLatLng;
   GlobalKey<ScaffoldState> sKey = GlobalKey<ScaffoldState>();
   CommonMethods cMethods = CommonMethods();
+  double searchContainerHeight = 276;
+  double bottomMapPadding = 0;
 
   @override
   void initState() {
@@ -256,10 +258,80 @@ class _HomePageState extends State<HomePage> {
                     )
               ),
             ),
-          )
+          ),
+
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: -80,
+            child: Container(
+              height: searchContainerHeight,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+
+                  ElevatedButton(
+                    onPressed: ()
+                    {
+
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.grey,
+                      shape: CircleBorder(),
+                      padding: const EdgeInsets.all(24)
+                    ),
+                    child: Icon(
+                      Icons.search,
+                      color: Colors.white,
+                      size: 25,
+
+                    ),
+                  ),
+
+                  ElevatedButton(
+                    onPressed: ()
+                    {
+
+                    },
+                    style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.grey,
+                        shape: CircleBorder(),
+                        padding: const EdgeInsets.all(24)
+                    ),
+                    child: Icon(
+                      Icons.home,
+                      color: Colors.white,
+                      size: 25,
+
+                    ),
+                  ),
+
+                  ElevatedButton(
+                    onPressed: ()
+                    {
+
+                    },
+                    style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.grey,
+                        shape: CircleBorder(),
+                        padding: const EdgeInsets.all(24)
+                    ),
+                    child: Icon(
+                      Icons.work,
+                      color: Colors.white,
+                      size: 25,
+
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
 
         ],
       ),
+
+
     );
   }
 }
