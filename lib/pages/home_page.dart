@@ -8,6 +8,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:users_app/authentication/login_screen.dart';
 import 'package:users_app/global/global_var.dart';
 import 'package:users_app/methods/common_methods.dart';
+import 'package:users_app/pages/search_destination_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -273,7 +274,7 @@ class _HomePageState extends State<HomePage> {
                   ElevatedButton(
                     onPressed: ()
                     {
-
+                    Navigator.push(context, MaterialPageRoute(builder: (c)=> SearchDestinationPage()));
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.grey,
